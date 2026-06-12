@@ -9,7 +9,8 @@ class MongoInterviewFeedbackRepository extends IInterviewFeedbackRepository {
       const feedback = new InterviewFeedback(data);
       return await feedback.save();
     } catch (error) {
-      throw new AppError("Failed to create feedback", 500);
+      
+      throw error;
     }
   }
 
@@ -24,11 +25,23 @@ class MongoInterviewFeedbackRepository extends IInterviewFeedbackRepository {
       .lean();
   }
 
-  async getAllFeedbacks() {
-    return await InterviewFeedback.find()
+  async getAllFeedbacks({
+    page = 1,
+    limit = 10,
+    status,
+  } = {}) {
+    const query = {};
+
+    if (status) {
+      query.status = status;
+    }
+
+    return await InterviewFeedback.find(query)
       .populate("candidateId")
       .populate("jobRoleId")
       .sort({ createdAt: -1 })
+      .skip((page - 1) * Number(limit))
+      .limit(Number(limit))
       .lean();
   }
 

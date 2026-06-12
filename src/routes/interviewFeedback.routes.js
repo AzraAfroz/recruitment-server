@@ -1,30 +1,36 @@
 import express from "express";
 import interviewFeedbackController from "../controllers/interviewFeedback.controller.js";
+import { authenticateJWT } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
 router.post(
-  "/create-feedback",
+  "/",
+  authenticateJWT,
   interviewFeedbackController.createFeedback
 );
 
 router.get(
-  "/all-feedbacks",
+  "/",
+  authenticateJWT,
   interviewFeedbackController.getAllFeedbacks
 );
 
 router.get(
   "/:id",
+  authenticateJWT,
   interviewFeedbackController.getFeedbackById
 );
 
-router.put(
+router.patch(
   "/:id",
+  authenticateJWT,
   interviewFeedbackController.updateFeedback
 );
 
 router.delete(
   "/:id",
+  authenticateJWT,
   interviewFeedbackController.deleteFeedback
 );
 

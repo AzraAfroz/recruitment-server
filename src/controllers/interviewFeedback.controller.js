@@ -1,16 +1,48 @@
 import interviewFeedbackService from "../services/interviewFeedback.service.js";
+import { AppError } from "../utils/errors.js";
 
 class InterviewFeedbackController {
   async createFeedback(req, res, next) {
     try {
-      const feedback =
+      const {
+        candidateId,
+        jobRoleId,
+        interviewerName,
+        rating,
+        feedback,
+      } = req.body;
+
+      if (!candidateId) {
+        throw new AppError("candidateId is required", 400);
+      }
+
+      if (!jobRoleId) {
+        throw new AppError("jobRoleId is required", 400);
+      }
+
+      if (!interviewerName) {
+        throw new AppError("interviewerName is required", 400);
+      }
+
+      if (!feedback) {
+        throw new AppError("feedback is required", 400);
+      }
+
+      if (!rating || rating < 1 || rating > 5) {
+        throw new AppError(
+          "rating must be between 1 and 5",
+          400
+        );
+      }
+
+      const result =
         await interviewFeedbackService.createFeedback(
           req.body
         );
 
       res.status(201).json({
         success: true,
-        data: feedback,
+        data: result,
       });
     } catch (error) {
       next(error);
@@ -36,7 +68,9 @@ class InterviewFeedbackController {
   async getAllFeedbacks(req, res, next) {
     try {
       const feedbacks =
-        await interviewFeedbackService.getAllFeedbacks();
+        await interviewFeedbackService.getAllFeedbacks(
+          req.query
+        );
 
       res.status(200).json({
         success: true,
@@ -49,6 +83,18 @@ class InterviewFeedbackController {
 
   async updateFeedback(req, res, next) {
     try {
+      const { rating } = req.body;
+
+      if (
+        rating !== undefined &&
+        (rating < 1 || rating > 5)
+      ) {
+        throw new AppError(
+          "rating must be between 1 and 5",
+          400
+        );
+      }
+
       const updated =
         await interviewFeedbackService.updateFeedback(
           req.params.id,
